@@ -1,0 +1,357 @@
+#include <windows.h>
+#include <wchar.h>
+#include <stdio.h>
+
+#define ID_BUTTON_PROCESS 1001
+#define ID_TEXTBOX_INPUT 1002
+
+int x = 0;
+int y = 0;  
+int numbers[100];  
+int currentIndex = 0;  
+
+LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+LRESULT CALLBACK NumberInputProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
+LRESULT CALLBACK ResultProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
+
+int main() {
+    WNDCLASSW wc = {0};
+    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = L"MyWindowClass";
+    wc.lpfnWndProc = WindowProcedure;
+
+    if (!RegisterClassW(&wc))
+        return -1;
+
+    
+    WNDCLASSW numberInputWc = {0};
+    numberInputWc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+    numberInputWc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    numberInputWc.hInstance = GetModuleHandle(NULL);
+    numberInputWc.lpszClassName = L"MyNumberInputClass";
+    numberInputWc.lpfnWndProc = NumberInputProcedure;
+
+    if (!RegisterClassW(&numberInputWc))
+        return -1;
+
+    
+    WNDCLASSW resultWc = {0};
+    resultWc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+    resultWc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    resultWc.hInstance = GetModuleHandle(NULL);
+    resultWc.lpszClassName = L"MyResultClass";
+    resultWc.lpfnWndProc = ResultProcedure;
+
+    if (!RegisterClassW(&resultWc))
+        return -1;
+
+    CreateWindowW(L"MyWindowClass", L"GUI Example", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 200, 200, 800, 400, NULL, NULL, NULL, NULL);
+
+    MSG msg = {0};
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return 0;
+}
+
+LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
+    switch (msg) {
+        case WM_CREATE: {
+            // Create a static label (statement)
+            CreateWindowW(L"static", L"Enter the task number you want to perform...1) Addition  2) subtraction  3) Multiplication  4) division", WS_VISIBLE | WS_CHILD, 10, 10, 450, 50, hWnd, NULL, NULL, NULL);
+
+            // Create a textbox for input
+            CreateWindowW(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_NUMBER, 40, 80, 150, 80, hWnd, (HMENU)ID_TEXTBOX_INPUT, NULL, NULL);
+
+            // Create a button to trigger processing
+            CreateWindowW(L"button", L"Proceed", WS_VISIBLE | WS_CHILD, 90, 170, 80, 30, hWnd, (HMENU)ID_BUTTON_PROCESS, NULL, NULL);
+
+            break;
+        }
+        case WM_COMMAND: {
+            switch (LOWORD(wp)) {
+                case ID_BUTTON_PROCESS: {
+                    
+                    HWND hwndTextbox = GetDlgItem(hWnd, ID_TEXTBOX_INPUT);
+
+                    int inputValue;
+                    
+                    if (GetWindowTextLengthW(hwndTextbox) > 0) {
+                        wchar_t buffer[20];
+                        GetWindowTextW(hwndTextbox, buffer, sizeof(buffer) / sizeof(buffer[0]));
+                        inputValue = _wtoi(buffer);
+
+                        
+                        x = inputValue;
+
+                        if (x == 1) {
+                            // Create a new window for number input
+                            HWND hwndNumberInput = CreateWindowW(L"MyNumberInputClass", L"Number Input", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 500, 400, NULL, NULL, NULL, NULL);
+
+                            // Create a static label (statement)
+                            CreateWindowW(L"static", L"Enter your numbers separated by spaces and press enter =>", WS_VISIBLE | WS_CHILD, 10, 10, 450, 50, hwndNumberInput, NULL, NULL, NULL);
+
+                            // Create a textbox for input
+                            CreateWindowW(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 40, 80, 150, 80, hwndNumberInput, (HMENU)ID_TEXTBOX_INPUT, NULL, NULL);
+
+                            // Set focus on the edit control
+                            SetFocus(hwndNumberInput);
+
+                            // Create a button to trigger processing
+                            CreateWindowW(L"button", L"Proceed", WS_VISIBLE | WS_CHILD, 90, 170, 80, 30, hwndNumberInput, (HMENU)ID_BUTTON_PROCESS, NULL, NULL);}
+                        
+
+                        else if(x==2) {
+                            // Create a new window for number input
+                            HWND hwndNumberInput = CreateWindowW(L"MyNumberInputClass", L"Number Input", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 500, 400, NULL, NULL, NULL, NULL);
+
+                            // Create a static label (statement)
+                            CreateWindowW(L"static", L"Enter your numbers separated by spaces and press enter =>", WS_VISIBLE | WS_CHILD, 10, 10, 450, 50, hwndNumberInput, NULL, NULL, NULL);
+
+                            // Create a textbox for input
+                            CreateWindowW(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 40, 80, 150, 80, hwndNumberInput, (HMENU)ID_TEXTBOX_INPUT, NULL, NULL);
+
+                            // Set focus on the edit control
+                            SetFocus(hwndNumberInput);
+
+                            // Create a button to trigger processing
+                            CreateWindowW(L"button", L"Proceed", WS_VISIBLE | WS_CHILD, 90, 170, 80, 30, hwndNumberInput, (HMENU)ID_BUTTON_PROCESS, NULL, NULL);
+
+                        }
+                         else if(x==3) {
+                            // Create a new window for number input
+                            HWND hwndNumberInput = CreateWindowW(L"MyNumberInputClass", L"Number Input", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 500, 400, NULL, NULL, NULL, NULL);
+
+                            // Create a static label (statement)
+                            CreateWindowW(L"static", L"Enter your numbers separated by spaces and press enter =>", WS_VISIBLE | WS_CHILD, 10, 10, 450, 50, hwndNumberInput, NULL, NULL, NULL);
+
+                            // Create a textbox for input
+                            CreateWindowW(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 40, 80, 150, 80, hwndNumberInput, (HMENU)ID_TEXTBOX_INPUT, NULL, NULL);
+
+                            // Set focus on the edit control
+                            SetFocus(hwndNumberInput);
+
+                            // Create a button to trigger processing
+                            CreateWindowW(L"button", L"Proceed", WS_VISIBLE | WS_CHILD, 90, 170, 80, 30, hwndNumberInput, (HMENU)ID_BUTTON_PROCESS, NULL, NULL);
+
+                        }
+                         else if(x==4) {
+                            // Create a new window for number input
+                            HWND hwndNumberInput = CreateWindowW(L"MyNumberInputClass", L"Number Input", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 500, 400, NULL, NULL, NULL, NULL);
+
+                            // Create a static label (statement)
+                            CreateWindowW(L"static", L"Enter your numbers separated by spaces and press enter =>", WS_VISIBLE | WS_CHILD, 10, 10, 450, 50, hwndNumberInput, NULL, NULL, NULL);
+
+                            // Create a textbox for input
+                            CreateWindowW(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 40, 80, 150, 80, hwndNumberInput, (HMENU)ID_TEXTBOX_INPUT, NULL, NULL);
+
+                            // Set focus on the edit control
+                            SetFocus(hwndNumberInput);
+
+                            // Create a button to trigger processing
+                            CreateWindowW(L"button", L"Proceed", WS_VISIBLE | WS_CHILD, 90, 170, 80, 30, hwndNumberInput, (HMENU)ID_BUTTON_PROCESS, NULL, NULL);
+
+                        }    
+                         else {
+                            MessageBoxW(hWnd, L"Invalid task number. Please enter a valid task number.", L"Error", MB_OK | MB_ICONERROR);
+                        }
+                    } else {
+                        MessageBoxW(hWnd, L"Please enter a valid integer.", L"Error", MB_OK | MB_ICONERROR);
+                    }
+
+                    break;
+                }
+            }
+            break;
+        }
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            
+            return DefWindowProc(hWnd, msg, wp, lp);
+    }
+
+    return 0;
+}
+
+LRESULT CALLBACK NumberInputProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    switch (msg) {
+        case WM_COMMAND: {
+            switch (LOWORD(wp)) {
+                case ID_BUTTON_PROCESS: {
+
+                    if(x==1) {
+                    
+                    HWND hwndEdit = GetDlgItem(hwnd, ID_TEXTBOX_INPUT);
+                    wchar_t buffer[256];
+                    GetWindowTextW(hwndEdit, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+                    
+                    wchar_t* nextToken;
+                    wchar_t* token = wcstok(buffer, L" ");
+                    while (token != NULL) {
+                        numbers[currentIndex++] = _wtoi(token);
+                        token = wcstok(NULL, L" ");
+                    }
+
+                    
+                    HWND hwndResult = CreateWindowW(L"MyResultClass", L"Result", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 400, 200, NULL, NULL, NULL, NULL);
+
+                    
+                    int sum = 0;
+                    for (int i = 0; i < currentIndex; ++i) {
+                        sum += numbers[i];
+                    }
+
+                   
+                    wchar_t sumText[50];
+                    swprintf(sumText, L"Sum of input numbers: %d", sum);
+                    MessageBoxW(hwndResult, sumText, L"Result", MB_OK);
+
+                    
+                    DestroyWindow(hwnd);
+                    break;
+                    }
+
+                    ///////////////////////////////////////////////gg
+                    else if(x==2) {
+                        HWND hwndEdit = GetDlgItem(hwnd, ID_TEXTBOX_INPUT);
+                    wchar_t buffer[256];
+                    GetWindowTextW(hwndEdit, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+                    
+                    wchar_t* nextToken;
+                    wchar_t* token = wcstok(buffer, L" ");
+                    while (token != NULL) {
+                        numbers[currentIndex++] = _wtoi(token);
+                        token = wcstok(NULL, L" ");
+                    }
+
+                    
+                    HWND hwndResult = CreateWindowW(L"MyResultClass", L"Result", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 400, 200, NULL, NULL, NULL, NULL);
+
+                    
+                    int sum = 0;
+                
+                    for (int i = 1; i < currentIndex; ++i) {
+
+                        sum = numbers[0];
+                        
+                        if(i%2==0) {
+                            sum = -sum - numbers[i];
+                            
+                        }
+                        else{
+                            sum = sum - numbers[i];
+                        }
+                        
+                        printf("\n%d   %d",sum,numbers[i]);
+                        
+                    }
+
+                   
+                    wchar_t sumText[50];
+                    swprintf(sumText, L"Difference of input numbers: %d",sum);
+                    MessageBoxW(hwndResult, sumText, L"Result", MB_OK);
+
+                    
+                    DestroyWindow(hwnd);
+                    break;
+                    }
+                    /////////////////////////////////////////////////////////////////////////////gg
+                    else if(x==3) {
+                        HWND hwndEdit = GetDlgItem(hwnd, ID_TEXTBOX_INPUT);
+                    wchar_t buffer[256];
+                    GetWindowTextW(hwndEdit, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+                    
+                    wchar_t* nextToken;
+                    wchar_t* token = wcstok(buffer, L" ");
+                    while (token != NULL) {
+                        numbers[currentIndex++] = _wtoi(token);
+                        token = wcstok(NULL, L" ");
+                    }
+
+                    
+                    HWND hwndResult = CreateWindowW(L"MyResultClass", L"Result", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 400, 200, NULL, NULL, NULL, NULL);
+
+                    
+                    int sum = 1;
+                    for (int i = 0; i < currentIndex; ++i) {
+                        sum = sum*numbers[i];
+                    }
+
+                   
+                    wchar_t sumText[50];
+                    swprintf(sumText, L"Product of input numbers: %d", sum);
+                    MessageBoxW(hwndResult, sumText, L"Result", MB_OK);
+
+                    
+                    DestroyWindow(hwnd);
+                    break;
+                    }
+                    /////////////////////////////////////////////////////////////////////////////////////gg
+                    else if(x==4) {
+                        HWND hwndEdit = GetDlgItem(hwnd, ID_TEXTBOX_INPUT);
+                    wchar_t buffer[256];
+                    GetWindowTextW(hwndEdit, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+                    
+                    wchar_t* nextToken;
+                    wchar_t* token = wcstok(buffer, L" ");
+                    while (token != NULL) {
+                        numbers[currentIndex++] = _wtoi(token);
+                        token = wcstok(NULL, L" ");
+                    }
+
+                    
+                    HWND hwndResult = CreateWindowW(L"MyResultClass", L"Result", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 300, 300, 400, 200, NULL, NULL, NULL, NULL);
+
+                    
+                    int sum = 1;
+                    int i = 0;
+                        sum =  numbers[i] / numbers[i+1];
+                    
+
+                   
+                    wchar_t sumText[50];
+                    swprintf(sumText, L"Division of input number is : %d", sum);
+                    MessageBoxW(hwndResult, sumText, L"Result", MB_OK);
+
+                    
+                    DestroyWindow(hwnd);
+                    break;
+                    }
+                }
+            }
+            break;
+        }
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            
+            return DefWindowProc(hwnd, msg, wp, lp);
+    }
+
+    return 0;
+}
+
+LRESULT CALLBACK ResultProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    switch (msg) {
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            
+            return DefWindowProc(hwnd, msg, wp, lp);
+    }
+
+    return 0;
+}
+
